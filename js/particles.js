@@ -1,6 +1,6 @@
 /**
  * PARTICLES.JS — Deck Master League
- * Canvas particle effect: floating card suits + dots
+ * Canvas particle effect: floating card suits + dots (fullscreen background)
  */
 
 (function () {
@@ -10,18 +10,26 @@
   const ctx = canvas.getContext('2d');
   let W, H, particles = [], animId;
 
-  const SUITS   = ['♠', '♥', '♦', '♣', '🃏'];
-  const COLORS  = [
-    'rgba(255,23,68,',    // red
-    'rgba(255,214,0,',    // gold
-    'rgba(0,229,255,',    // cyan
-    'rgba(255,255,255,',  // white
+  const SUITS  = ['♠', '♥', '♦', '♣', '🃏'];
+  const COLORS = [
+    'rgba(255,23,68,',
+    'rgba(255,214,0,',
+    'rgba(0,229,255,',
+    'rgba(255,255,255,',
   ];
 
+  // Fix canvas style — fullscreen fixed background
+  canvas.style.cssText = `
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  `;
+
   function resize() {
-    const hero = canvas.closest('.hero') || canvas.parentElement;
-    W = canvas.width  = hero.offsetWidth;
-    H = canvas.height = hero.offsetHeight;
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
   }
 
   function randomBetween(a, b) {
@@ -31,27 +39,27 @@
   function createParticle() {
     const isSuit = Math.random() < 0.35;
     return {
-      x:      randomBetween(0, W),
-      y:      randomBetween(0, H),
-      vx:     randomBetween(-0.3, 0.3),
-      vy:     randomBetween(-0.6, -0.15),
-      size:   isSuit ? randomBetween(10, 22) : randomBetween(1.5, 3.5),
-      alpha:  randomBetween(0.04, 0.18),
-      color:  COLORS[Math.floor(Math.random() * COLORS.length)],
-      suit:   isSuit ? SUITS[Math.floor(Math.random() * SUITS.length)] : null,
-      rot:    randomBetween(0, Math.PI * 2),
-      rotV:   randomBetween(-0.008, 0.008),
-      life:   0,
-      maxLife: randomBetween(200, 500),
+      x:       randomBetween(0, W),
+      y:       randomBetween(0, H),
+      vx:      randomBetween(-0.3, 0.3),
+      vy:      randomBetween(-0.7, -0.2),
+      size:    isSuit ? randomBetween(16, 32) : randomBetween(2, 4),
+      alpha:   randomBetween(0.06, 0.22),
+      color:   COLORS[Math.floor(Math.random() * COLORS.length)],
+      suit:    isSuit ? SUITS[Math.floor(Math.random() * SUITS.length)] : null,
+      rot:     randomBetween(0, Math.PI * 2),
+      rotV:    randomBetween(-0.01, 0.01),
+      life:    0,
+      maxLife: randomBetween(300, 700),
     };
   }
 
   function initParticles() {
     particles = [];
-    const count = Math.min(60, Math.floor((W * H) / 16000));
+    const count = Math.min(80, Math.floor((W * H) / 12000));
     for (let i = 0; i < count; i++) {
       const p = createParticle();
-      p.life = Math.random() * p.maxLife; // stagger
+      p.life = Math.random() * p.maxLife;
       particles.push(p);
     }
   }
@@ -61,11 +69,10 @@
 
     particles.forEach((p, i) => {
       p.life++;
-      p.x  += p.vx;
-      p.y  += p.vy;
+      p.x   += p.vx;
+      p.y   += p.vy;
       p.rot += p.rotV;
 
-      // fade in / fade out
       const progress = p.life / p.maxLife;
       const fade = progress < 0.15 ? progress / 0.15
                  : progress > 0.85 ? (1 - progress) / 0.15
@@ -90,10 +97,9 @@
         ctx.fill();
       }
 
-      // reset when life ends or goes off screen
-      if (p.life >= p.maxLife || p.y < -30 || p.x < -30 || p.x > W + 30) {
-        particles[i] = createParticle();
-        particles[i].y = H + 10; // start from bottom
+      if (p.life >= p.maxLife || p.y < -50 || p.x < -50 || p.x > W + 50) {
+        particles[i]   = createParticle();
+        particles[i].y = H + 10;
         particles[i].life = 0;
       }
     });
@@ -114,7 +120,6 @@
     draw();
   });
 
-  // Wait for hero to be rendered
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
