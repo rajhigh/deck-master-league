@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Input Hasil — Deck Master League</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/animations.css" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-brand">
+      <span class="card-icon">🃏</span>
+      <span class="nav-brand-text">Deck Master League</span>
+    </div>
+    <div class="nav-links">
+      <a href="../index.html">Beranda</a>
+      <a href="klasemen.html">Klasemen</a>
+      <a href="pertandingan.html" class="active">Input Hasil</a>
+      <a href="riwayat.html">Riwayat</a>
+      <a href="pemain.html">Pemain</a>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h1>🎯 Input Hasil Pertandingan</h1>
+    <p>Catat siapa yang menang, kedua, dan ketiga pada sesi hari ini</p>
+  </div>
+
+  <div class="form-container">
+    <form id="form-pertandingan" onsubmit="simpanHasil(event)">
+
+      <!-- LIGA & TANGGAL -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="liga">Liga</label>
+          <select id="liga" required>
+            <option value="">-- Pilih Liga --</option>
+            <option value="uno">🎴 Liga UNO</option>
+            <option value="remi">♠️ Liga Remi</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="tanggal">Tanggal</label>
+          <input type="date" id="tanggal" required />
+        </div>
+      </div>
+
+      <!-- MUSIM / SESI -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="musim">Musim</label>
+          <input type="text" id="musim" placeholder="Contoh: Musim 1, Oktober 2026" required />
+        </div>
+        <div class="form-group">
+          <label for="sesi">Nomor Sesi Hari Ini</label>
+          <input type="number" id="sesi" min="1" value="1" required />
+        </div>
+      </div>
+
+      <hr class="form-divider" />
+      <h3 class="form-subtitle">🏆 Hasil Sesi</h3>
+      <p class="form-hint">Masukkan nama pemain sesuai urutan: paling sedikit kalah → paling banyak kalah</p>
+
+      <!-- POSISI 1 -->
+      <div class="result-row rank-1">
+        <div class="rank-badge">🥇 1st</div>
+        <div class="form-group">
+          <label>Pemain (Paling Sedikit Kalah)</label>
+          <select id="pemain-1" required onchange="validatePemain()">
+            <option value="">-- Pilih Pemain --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Skor / Nilai Kekalahan</label>
+          <input type="number" id="skor-1" placeholder="Misal: 5" min="0" required />
+        </div>
+        <div class="poin-badge">+3 Poin</div>
+      </div>
+
+      <!-- POSISI 2 -->
+      <div class="result-row rank-2">
+        <div class="rank-badge">🥈 2nd</div>
+        <div class="form-group">
+          <label>Pemain (Kalah Kedua)</label>
+          <select id="pemain-2" required onchange="validatePemain()">
+            <option value="">-- Pilih Pemain --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Skor / Nilai Kekalahan</label>
+          <input type="number" id="skor-2" placeholder="Misal: 12" min="0" required />
+        </div>
+        <div class="poin-badge">+2 Poin</div>
+      </div>
+
+      <!-- POSISI 3 -->
+      <div class="result-row rank-3">
+        <div class="rank-badge">🥉 3rd</div>
+        <div class="form-group">
+          <label>Pemain (Paling Banyak Kalah)</label>
+          <select id="pemain-3" required onchange="validatePemain()">
+            <option value="">-- Pilih Pemain --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Skor / Nilai Kekalahan</label>
+          <input type="number" id="skor-3" placeholder="Misal: 25" min="0" required />
+        </div>
+        <div class="poin-badge">+1 Poin</div>
+      </div>
+
+      <div id="form-error" class="form-error" style="display:none;"></div>
+
+      <!-- CATATAN -->
+      <div class="form-group">
+        <label for="catatan">Catatan (opsional)</label>
+        <textarea id="catatan" rows="2" placeholder="Cerita seru, momen epik, dll..."></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-outline" onclick="resetForm()">Reset</button>
+        <button type="submit" class="btn btn-primary">💾 Simpan Hasil</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- MODAL SUKSES -->
+  <div id="modal-sukses" class="modal" style="display:none;">
+    <div class="modal-content">
+      <div class="modal-icon">🎉</div>
+      <h2>Hasil Tersimpan!</h2>
+      <p id="modal-msg"></p>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeModal()">Input Lagi</button>
+        <a href="klasemen.html" class="btn btn-primary">Lihat Klasemen</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>🃏 Deck Master League &copy; 2026</p>
+  </footer>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/pertandingan.js"></script>
+  <script src="../js/animations.js"></script>
+</body>
+</html>

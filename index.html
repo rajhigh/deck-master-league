@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deck Master League</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <span class="card-icon">🃏</span>
+      <span class="nav-brand-text">Deck Master League</span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html" class="active">Beranda</a>
+      <a href="pages/klasemen.html">Klasemen</a>
+      <a href="pages/pertandingan.html">Input Hasil</a>
+      <a href="pages/riwayat.html">Riwayat</a>
+      <a href="pages/pemain.html">Pemain</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <!-- Particles canvas -->
+    <canvas id="particles-canvas"></canvas>
+
+    <div class="hero-cards">
+      <div class="hero-accent hero-accent-1"></div>
+      <div class="hero-accent hero-accent-2"></div>
+    </div>
+
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <span>🏆</span> Season 1 — Now Live
+      </div>
+      <h1>
+        <span class="hero-line1">Deck Master</span>
+        <span class="hero-line2" data-text="League">League</span>
+      </h1>
+      <p>Catat sesi, pantau klasemen, buktikan siapa raja kartu di antara kalian.</p>
+      <div class="hero-buttons">
+        <a href="pages/pertandingan.html" class="btn btn-primary">+ Input Hasil</a>
+        <a href="pages/klasemen.html" class="btn btn-gold">Lihat Klasemen</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- QUICK STATS -->
+  <section class="quick-stats" id="quick-stats">
+    <div class="stats-container">
+      <!-- diisi oleh JS -->
+    </div>
+  </section>
+
+  <!-- LIGA CARDS -->
+  <section class="liga-section">
+    <h2 class="section-title"><span class="title-accent">Pilih</span> Liga</h2>
+    <div class="liga-cards">
+      <div class="liga-card liga-uno" onclick="window.location='pages/klasemen.html?liga=uno'">
+        <div class="liga-icon">🎴</div>
+        <h3>Liga UNO</h3>
+        <p>Permainan kartu seru dengan aturan UNO klasik</p>
+        <span class="liga-badge">Aktif</span>
+      </div>
+      <div class="liga-card liga-remi" onclick="window.location='pages/klasemen.html?liga=remi'">
+        <div class="liga-icon">♠️</div>
+        <h3>Liga Remi</h3>
+        <p>Permainan kartu remi penuh strategi</p>
+        <span class="liga-badge">Aktif</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- KLASEMEN MINI -->
+  <section class="mini-klasemen-section">
+    <h2 class="section-title"><span class="title-accent">Klasemen</span> Terkini</h2>
+    <div class="mini-klasemen-wrapper">
+      <div class="mini-klasemen">
+        <h3>🎴 Liga UNO</h3>
+        <table class="klasemen-table" id="mini-klasemen-uno">
+          <thead>
+            <tr><th>#</th><th>Pemain</th><th>Main</th><th>Poin</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="mini-klasemen">
+        <h3>♠️ Liga Remi</h3>
+        <table class="klasemen-table" id="mini-klasemen-remi">
+          <thead>
+            <tr><th>#</th><th>Pemain</th><th>Main</th><th>Poin</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="center-link">
+      <a href="pages/klasemen.html" class="btn btn-outline">Lihat Klasemen Lengkap →</a>
+    </div>
+  </section>
+
+  <!-- HASIL TERAKHIR -->
+  <section class="recent-section">
+    <h2 class="section-title"><span class="title-accent">Pertandingan</span> Terakhir</h2>
+    <div class="recent-list" id="recent-list">
+      <p class="empty-msg">Belum ada pertandingan.</p>
+    </div>
+    <div class="center-link">
+      <a href="pages/riwayat.html" class="btn btn-outline">Lihat Semua Riwayat →</a>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>🃏 Deck Master League &copy; 2026 — rajh1gh · Spoon · Alvnn</p>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/home.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/animations.js"></script>
+</body>
+</html>

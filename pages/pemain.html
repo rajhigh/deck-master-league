@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pemain — Deck Master League</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/animations.css" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-brand">
+      <span class="card-icon">🃏</span>
+      <span class="nav-brand-text">Deck Master League</span>
+    </div>
+    <div class="nav-links">
+      <a href="../index.html">Beranda</a>
+      <a href="klasemen.html">Klasemen</a>
+      <a href="pertandingan.html">Input Hasil</a>
+      <a href="riwayat.html">Riwayat</a>
+      <a href="pemain.html" class="active">Pemain</a>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h1>👥 Daftar Pemain</h1>
+    <p>Kelola data pemain, lihat profil dan statistik lengkap</p>
+  </div>
+
+  <!-- TAMBAH PEMAIN -->
+  <div class="add-pemain-bar">
+    <button class="btn btn-primary" onclick="openModalTambah()">+ Tambah Pemain</button>
+  </div>
+
+  <!-- GRID KARTU PEMAIN -->
+  <div class="pemain-grid" id="pemain-grid"></div>
+
+  <!-- MODAL TAMBAH PEMAIN -->
+  <div id="modal-tambah" class="modal" style="display:none;">
+    <div class="modal-content">
+      <h2>➕ Tambah Pemain</h2>
+      <div class="form-group">
+        <label>Nama Pemain</label>
+        <input type="text" id="input-nama" placeholder="Masukkan nama..." maxlength="30" />
+      </div>
+      <div class="form-group">
+        <label>Foto Profil (opsional)</label>
+        <div class="foto-upload-area" id="foto-upload-area" onclick="document.getElementById('input-foto').click()">
+          <div class="foto-preview" id="foto-preview">
+            <span class="foto-placeholder">📷 Klik untuk pilih foto</span>
+          </div>
+        </div>
+        <input type="file" id="input-foto" accept="image/*" style="display:none;" onchange="previewFoto(this)" />
+        <button type="button" class="btn-hapus-foto" id="btn-hapus-foto" onclick="hapusFotoPreview()" style="display:none;">✕ Hapus foto</button>
+      </div>
+      <div class="form-group">
+        <label>Emoji / Avatar <span style="color:var(--text-muted);font-weight:400;">(jika tidak ada foto)</span></label>
+        <div class="avatar-picker" id="avatar-picker">
+          <span class="avatar-opt selected" onclick="pilihAvatar(this)">😎</span>
+          <span class="avatar-opt" onclick="pilihAvatar(this)">🐱</span>
+          <span class="avatar-opt" onclick="pilihAvatar(this)">🐶</span>
+          <span class="avatar-opt" onclick="pilihAvatar(this)">🦊</span>
+          <span class="avatar-opt" onclick="pilihAvatar(this)">🐸</span>
+          <span class="avatar-opt" onclick="pilihAvatar(this)">🐻</span>
+          <span class="avatar-opt" onclick="pilihAvatar(this)">🦁</span>
+          <span class="avatar-opt" onclick="pilihAvatar(this)">🐯</span>
+          <span class="avatar-opt" onclick="pilihAvatar(this)">🦄</span>
+          <span class="avatar-opt" onclick="pilihAvatar(this)">🐲</span>
+          <span class="avatar-opt" onclick="pilihAvatar(this)">🤖</span>
+          <span class="avatar-opt" onclick="pilihAvatar(this)">👾</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Warna Kartu</label>
+        <div class="color-picker" id="color-picker">
+          <span class="color-opt selected" style="background:#e74c3c;" data-color="#e74c3c" onclick="pilihWarna(this)"></span>
+          <span class="color-opt" style="background:#3498db;" data-color="#3498db" onclick="pilihWarna(this)"></span>
+          <span class="color-opt" style="background:#2ecc71;" data-color="#2ecc71" onclick="pilihWarna(this)"></span>
+          <span class="color-opt" style="background:#f39c12;" data-color="#f39c12" onclick="pilihWarna(this)"></span>
+          <span class="color-opt" style="background:#9b59b6;" data-color="#9b59b6" onclick="pilihWarna(this)"></span>
+          <span class="color-opt" style="background:#1abc9c;" data-color="#1abc9c" onclick="pilihWarna(this)"></span>
+          <span class="color-opt" style="background:#e67e22;" data-color="#e67e22" onclick="pilihWarna(this)"></span>
+          <span class="color-opt" style="background:#e91e8c;" data-color="#e91e8c" onclick="pilihWarna(this)"></span>
+        </div>
+      </div>
+      <div class="form-error" id="error-tambah" style="display:none;"></div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" onclick="closeModalTambah()">Batal</button>
+        <button class="btn btn-primary" onclick="tambahPemain()">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PROFIL -->
+  <div id="modal-profil" class="modal" style="display:none;">
+    <div class="modal-content modal-profil-content">
+      <div class="profil-header" id="profil-header"></div>
+      <div class="profil-stats" id="profil-stats"></div>
+      <div class="profil-chart" id="profil-chart"></div>
+      <div class="profil-riwayat">
+        <h3>Riwayat Terakhir</h3>
+        <div id="profil-riwayat-list"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" id="btn-ganti-foto" onclick="openGantiFoto()">📷 Ganti Foto</button>
+        <button class="btn btn-danger" id="btn-hapus-pemain" onclick="hapusPemain()">🗑️ Hapus Pemain</button>
+        <button class="btn btn-outline" onclick="closeModalProfil()">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="input-ganti-foto" accept="image/*" style="display:none;" onchange="simpanGantiFoto(this)" />
+
+  <footer class="footer">
+    <p>🃏 Deck Master League &copy; 2026</p>
+  </footer>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/pemain.js"></script>
+  <script src="../js/animations.js"></script>
+</body>
+</html>

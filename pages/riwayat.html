@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Riwayat — Deck Master League</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/animations.css" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-brand">
+      <span class="card-icon">🃏</span>
+      <span class="nav-brand-text">Deck Master League</span>
+    </div>
+    <div class="nav-links">
+      <a href="../index.html">Beranda</a>
+      <a href="klasemen.html">Klasemen</a>
+      <a href="pertandingan.html">Input Hasil</a>
+      <a href="riwayat.html" class="active">Riwayat</a>
+      <a href="pemain.html">Pemain</a>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <h1>📜 Riwayat Pertandingan</h1>
+    <p>Semua hasil pertandingan yang pernah dicatat</p>
+  </div>
+
+  <!-- FILTER -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label>Liga:</label>
+      <select id="filter-liga" onchange="renderRiwayat()">
+        <option value="all">Semua Liga</option>
+        <option value="uno">🎴 UNO</option>
+        <option value="remi">♠️ Remi</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Musim:</label>
+      <select id="filter-musim-riwayat" onchange="renderRiwayat()">
+        <option value="all">Semua Musim</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Pemain:</label>
+      <select id="filter-pemain-riwayat" onchange="renderRiwayat()">
+        <option value="all">Semua Pemain</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Cari:</label>
+      <input type="text" id="filter-search" placeholder="Cari catatan..." oninput="renderRiwayat()" />
+    </div>
+  </div>
+
+  <!-- STATS CEPAT -->
+  <div class="riwayat-stats" id="riwayat-stats"></div>
+
+  <!-- LIST RIWAYAT -->
+  <div class="riwayat-container" id="riwayat-container">
+    <p class="empty-msg">Belum ada data pertandingan.</p>
+  </div>
+
+  <footer class="footer">
+    <p>🃏 Deck Master League &copy; 2026</p>
+  </footer>
+
+  <script src="../js/data.js"></script>
+  <script src="../js/riwayat.js"></script>
+  <script src="../js/animations.js"></script>
+</body>
+</html>
