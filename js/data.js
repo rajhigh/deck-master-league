@@ -1,115 +1,98 @@
 /**
- * DATA.JS — Layer penyimpanan data menggunakan localStorage
- * Semua data disimpan di browser, tidak butuh server.
+ * DATA.JS — Layer penyimpanan data menggunakan Firebase Firestore
+ * Semua fungsi async, data disimpan di cloud (sync semua device).
  */
-
-const KEYS = {
-  pemain: 'ligakartu_pemain',
-  pertandingan: 'ligakartu_pertandingan',
-};
 
 // ============================================================
 // PEMAIN
 // ============================================================
 
-function getPemain() {
+async function getPemain() {
   try {
-    return JSON.parse(localStorage.getItem(KEYS.pemain)) || [];
-  } catch { return []; }
+    const snap = await db.collection('pemain').orderBy('bergabung', 'asc').get();
+    return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (e) { console.error('getPemain error:', e); return []; }
 }
 
-function savePemain(list) {
-  localStorage.setItem(KEYS.pemain, JSON.stringify(list));
+async function tambahPemainData(nama, avatar, warna, foto = null) {
+  try {
+    const snap = await db.collection('pemain')
+      .where('nameLower', '==', nama.toLowerCase()).get();
+    if (!snap.empty) return { ok: false, msg: 'Nama pemain sudah ada!' };
+
+    const ref = await db.collection('pemain').add({
+      nama,
+      nameLower: nama.toLowerCase(),
+      avatar,
+      warna,
+      foto: foto || null,
+      bergabung: new Date().toISOString(),
+    });
+    return { ok: true, pemain: { id: ref.id, nama, avatar, warna, foto } };
+  } catch (e) { console.error('tambahPemainData error:', e); return { ok: false, msg: 'Gagal menyimpan.' }; }
 }
 
-function tambahPemainData(nama, avatar, warna, foto = null) {
-  const list = getPemain();
-  if (list.find(p => p.nama.toLowerCase() === nama.toLowerCase())) {
-    return { ok: false, msg: 'Nama pemain sudah ada!' };
-  }
-  const pemain = {
-    id: 'p_' + Date.now(),
-    nama,
-    avatar,
-    warna,
-    foto,          // base64 string atau null
-    bergabung: new Date().toISOString(),
-  };
-  list.push(pemain);
-  savePemain(list);
-  return { ok: true, pemain };
+async function updateFotoPemain(id, fotoBase64) {
+  try {
+    await db.collection('pemain').doc(id).update({ foto: fotoBase64 });
+  } catch (e) { console.error('updateFotoPemain error:', e); }
 }
 
-function updateFotoPemain(id, fotoBase64) {
-  const list = getPemain();
-  const p = list.find(p => p.id === id);
-  if (!p) return;
-  p.foto = fotoBase64;
-  savePemain(list);
-}
-
-function hapusPemainData(id) {
-  const list = getPemain().filter(p => p.id !== id);
-  savePemain(list);
+async function hapusPemainData(id) {
+  try {
+    await db.collection('pemain').doc(id).delete();
+  } catch (e) { console.error('hapusPemainData error:', e); }
 }
 
 // ============================================================
 // PERTANDINGAN
 // ============================================================
 
-function getPertandingan() {
+async function getPertandingan() {
   try {
-    return JSON.parse(localStorage.getItem(KEYS.pertandingan)) || [];
-  } catch { return []; }
+    const snap = await db.collection('pertandingan').orderBy('createdAt', 'desc').get();
+    return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (e) { console.error('getPertandingan error:', e); return []; }
 }
 
-function savePertandingan(list) {
-  localStorage.setItem(KEYS.pertandingan, JSON.stringify(list));
+async function tambahPertandinganData(liga, tanggal, musim, sesi, hasil, catatan) {
+  try {
+    const data = {
+      liga,
+      tanggal,
+      musim,
+      sesi: Number(sesi),
+      hasil,
+      catatan,
+      createdAt: new Date().toISOString(),
+    };
+    const ref = await db.collection('pertandingan').add(data);
+    return { id: ref.id, ...data };
+  } catch (e) { console.error('tambahPertandinganData error:', e); return null; }
 }
 
-/**
- * Simpan 1 sesi pertandingan.
- * hasil = [{ pemainId, pemainNama, posisi (1/2/3), skor, poin }]
- */
-function tambahPertandinganData(liga, tanggal, musim, sesi, hasil, catatan) {
-  const list = getPertandingan();
-  const data = {
-    id: 'g_' + Date.now(),
-    liga,      // 'uno' | 'remi'
-    tanggal,
-    musim,
-    sesi: Number(sesi),
-    hasil,     // array 3 item
-    catatan,
-    createdAt: new Date().toISOString(),
-  };
-  list.unshift(data);      // simpan di depan (terbaru dulu)
-  savePertandingan(list);
-  return data;
-}
-
-function hapusPertandinganData(id) {
-  const list = getPertandingan().filter(g => g.id !== id);
-  savePertandingan(list);
+async function hapusPertandinganData(id) {
+  try {
+    await db.collection('pertandingan').doc(id).delete();
+  } catch (e) { console.error('hapusPertandinganData error:', e); }
 }
 
 // ============================================================
 // KLASEMEN — hitung dari data pertandingan
 // ============================================================
 
-/**
- * Hitung klasemen untuk liga + musim tertentu.
- * musim = 'all' untuk semua musim.
- */
-function hitungKlasemen(liga, musim = 'all') {
-  const pemainList = getPemain();
-  const pertandinganList = getPertandingan().filter(g => {
+async function hitungKlasemen(liga, musim = 'all') {
+  const [pemainList, pertandinganList] = await Promise.all([
+    getPemain(),
+    getPertandingan(),
+  ]);
+
+  const filtered = pertandinganList.filter(g => {
     if (g.liga !== liga) return false;
     if (musim !== 'all' && g.musim !== musim) return false;
     return true;
   });
 
-  // Inisialisasi map
   const map = {};
   pemainList.forEach(p => {
     map[p.id] = {
@@ -119,15 +102,14 @@ function hitungKlasemen(liga, musim = 'all') {
       warna: p.warna,
       foto: p.foto || null,
       main: 0,
-      pos1: 0,   // juara sesi (+3)
-      pos2: 0,   // kedua (+2)
-      pos3: 0,   // ketiga (+1)
+      pos1: 0,
+      pos2: 0,
+      pos3: 0,
       totalPoin: 0,
     };
   });
 
-  // Akumulasi
-  pertandinganList.forEach(g => {
+  filtered.forEach(g => {
     g.hasil.forEach(h => {
       if (!map[h.pemainId]) return;
       const row = map[h.pemainId];
@@ -138,22 +120,21 @@ function hitungKlasemen(liga, musim = 'all') {
     });
   });
 
-  // Sort: poin desc, pos1 desc, pos2 desc
-  return Object.values(map)
-    .sort((a, b) => {
-      if (b.totalPoin !== a.totalPoin) return b.totalPoin - a.totalPoin;
-      if (b.pos1 !== a.pos1) return b.pos1 - a.pos1;
-      return b.pos2 - a.pos2;
-    });
+  return Object.values(map).sort((a, b) => {
+    if (b.totalPoin !== a.totalPoin) return b.totalPoin - a.totalPoin;
+    if (b.pos1 !== a.pos1) return b.pos1 - a.pos1;
+    return b.pos2 - a.pos2;
+  });
 }
 
 // ============================================================
-// MUSIM — ambil daftar musim yang ada
+// MUSIM
 // ============================================================
 
-function getMusimList(liga) {
-  const list = getPertandingan().filter(g => !liga || g.liga === liga);
-  const musimSet = new Set(list.map(g => g.musim));
+async function getMusimList(liga) {
+  const list = await getPertandingan();
+  const filtered = liga ? list.filter(g => g.liga === liga) : list;
+  const musimSet = new Set(filtered.map(g => g.musim));
   return [...musimSet].sort();
 }
 
@@ -161,13 +142,13 @@ function getMusimList(liga) {
 // STATISTIK PEMAIN
 // ============================================================
 
-function getStatsPemain(pemainId) {
-  const pertandinganList = getPertandingan();
+async function getStatsPemain(pemainId) {
+  const pertandinganList = await getPertandingan();
 
   const stats = {
-    uno: { main: 0, pos1: 0, pos2: 0, pos3: 0, totalPoin: 0 },
+    uno:  { main: 0, pos1: 0, pos2: 0, pos3: 0, totalPoin: 0 },
     remi: { main: 0, pos1: 0, pos2: 0, pos3: 0, totalPoin: 0 },
-    total: { main: 0, pos1: 0, pos2: 0, pos3: 0, totalPoin: 0 },
+    total:{ main: 0, pos1: 0, pos2: 0, pos3: 0, totalPoin: 0 },
     riwayatTerakhir: [],
   };
 
@@ -192,13 +173,8 @@ function getStatsPemain(pemainId) {
 
     if (stats.riwayatTerakhir.length < 10) {
       stats.riwayatTerakhir.push({
-        id: g.id,
-        liga: g.liga,
-        tanggal: g.tanggal,
-        musim: g.musim,
-        posisi: h.posisi,
-        skor: h.skor,
-        poin: h.poin,
+        id: g.id, liga: g.liga, tanggal: g.tanggal,
+        musim: g.musim, posisi: h.posisi, skor: h.skor, poin: h.poin,
       });
     }
   });
@@ -226,25 +202,21 @@ function ligaBadgeHTML(liga) {
   return `<span class="recent-liga-badge ${cls}">${label}</span>`;
 }
 
-// Reset data lama (Andi/Budi/Cici) dan seed ulang dengan pemain baru
-function resetDanSeed() {
-  const pemain = getPemain();
-  const namaLama = ['andi', 'budi', 'cici'];
-  const adaPemainLama = pemain.some(p => namaLama.includes(p.nama.toLowerCase()));
+// ============================================================
+// SEED PEMAIN DEFAULT (hanya jika Firestore kosong)
+// ============================================================
 
-  if (adaPemainLama) {
-    // Hapus semua data lama
-    localStorage.removeItem(KEYS.pemain);
-    localStorage.removeItem(KEYS.pertandingan);
-  }
+async function seedDefaultPemain() {
+  try {
+    const snap = await db.collection('pemain').limit(1).get();
+    if (!snap.empty) return; // sudah ada data, skip
 
-  // Seed pemain baru jika belum ada
-  if (getPemain().length === 0) {
-    tambahPemainData('rajh1gh', '😎', '#e74c3c');
-    tambahPemainData('Spoon',   '🥄', '#3498db');
-    tambahPemainData('Alvnn',   '🦊', '#9b59b6');
-  }
+    await tambahPemainData('rajh1gh', '😎', '#e74c3c');
+    await tambahPemainData('Spoon',   '🥄', '#3498db');
+    await tambahPemainData('Alvnn',   '🦊', '#9b59b6');
+    console.log('Seed pemain default selesai.');
+  } catch (e) { console.error('seedDefaultPemain error:', e); }
 }
 
-// Jalankan
-resetDanSeed();
+// Jalankan seed saat pertama kali
+seedDefaultPemain();

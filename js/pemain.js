@@ -2,22 +2,22 @@
  * PEMAIN.JS — Manajemen pemain & profil
  */
 
-let selectedAvatar = '😎';
-let selectedWarna = '#e74c3c';
-let selectedFotoBase64 = null;   // foto baru saat tambah pemain
-let profilPemainId = null;
+let selectedAvatar       = '😎';
+let selectedWarna        = '#e74c3c';
+let selectedFotoBase64   = null;
+let profilPemainId       = null;
 
-document.addEventListener('DOMContentLoaded', () => {
-  renderPemainGrid();
+document.addEventListener('DOMContentLoaded', async () => {
+  await renderPemainGrid();
 });
 
 // ============================================================
-// HELPER: render avatar (foto atau emoji)
+// HELPER: render avatar
 // ============================================================
 
 function pemainAvatarHTML(p, size = 70) {
   const borderStyle = `border:3px solid ${p.warna};`;
-  const bgStyle = `background:${p.warna}22;`;
+  const bgStyle     = `background:${p.warna}22;`;
   if (p.foto) {
     return `<img src="${p.foto}" alt="${p.nama}"
       style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;${borderStyle}margin:0.5rem auto 0.75rem;display:block;" />`;
@@ -27,7 +27,7 @@ function pemainAvatarHTML(p, size = 70) {
 
 function profilAvatarHTML(p, size = 72) {
   const borderStyle = `border:3px solid ${p.warna};`;
-  const bgStyle = `background:${p.warna}22;`;
+  const bgStyle     = `background:${p.warna}22;`;
   if (p.foto) {
     return `<img src="${p.foto}" alt="${p.nama}"
       style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;${borderStyle}flex-shrink:0;" />`;
@@ -39,11 +39,13 @@ function profilAvatarHTML(p, size = 72) {
 // RENDER GRID PEMAIN
 // ============================================================
 
-function renderPemainGrid() {
+async function renderPemainGrid() {
   const grid = document.getElementById('pemain-grid');
   if (!grid) return;
 
-  const pemainList = getPemain();
+  grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem;"><p class="empty-msg">Memuat data...</p></div>`;
+
+  const pemainList = await getPemain();
 
   if (pemainList.length === 0) {
     grid.innerHTML = `
@@ -54,11 +56,12 @@ function renderPemainGrid() {
     return;
   }
 
-  grid.innerHTML = pemainList.map(p => {
-    const stats = getStatsPemain(p.id);
+  const statsAll = await Promise.all(pemainList.map(p => getStatsPemain(p.id)));
+
+  grid.innerHTML = pemainList.map((p, i) => {
+    const stats   = statsAll[i];
     const winRate = stats.total.main > 0
-      ? Math.round((stats.total.pos1 / stats.total.main) * 100)
-      : 0;
+      ? Math.round((stats.total.pos1 / stats.total.main) * 100) : 0;
 
     return `
       <div class="pemain-card" onclick="openModalProfil('${p.id}')">
@@ -94,21 +97,17 @@ function renderPemainGrid() {
 // ============================================================
 
 function openModalTambah() {
-  selectedAvatar = '😎';
-  selectedWarna = '#e74c3c';
+  selectedAvatar     = '😎';
+  selectedWarna      = '#e74c3c';
   selectedFotoBase64 = null;
-  document.getElementById('input-nama').value = '';
+  document.getElementById('input-nama').value       = '';
   document.getElementById('error-tambah').style.display = 'none';
-  document.getElementById('input-foto').value = '';
+  document.getElementById('input-foto').value       = '';
   document.getElementById('btn-hapus-foto').style.display = 'none';
   document.getElementById('foto-preview').innerHTML = `<span class="foto-placeholder">📷 Klik untuk pilih foto</span>`;
 
-  document.querySelectorAll('.avatar-opt').forEach((el, i) => {
-    el.classList.toggle('selected', i === 0);
-  });
-  document.querySelectorAll('.color-opt').forEach((el, i) => {
-    el.classList.toggle('selected', i === 0);
-  });
+  document.querySelectorAll('.avatar-opt').forEach((el, i) => el.classList.toggle('selected', i === 0));
+  document.querySelectorAll('.color-opt').forEach((el, i)  => el.classList.toggle('selected', i === 0));
   document.getElementById('modal-tambah').style.display = 'flex';
 }
 
@@ -128,17 +127,10 @@ function pilihWarna(el) {
   selectedWarna = el.dataset.color;
 }
 
-// Preview foto yang dipilih saat tambah pemain
 function previewFoto(input) {
   const file = input.files[0];
   if (!file) return;
-
-  if (file.size > 2 * 1024 * 1024) {
-    alert('Ukuran foto maksimal 2MB!');
-    input.value = '';
-    return;
-  }
-
+  if (file.size > 2 * 1024 * 1024) { alert('Ukuran foto maksimal 2MB!'); input.value = ''; return; }
   const reader = new FileReader();
   reader.onload = (e) => {
     selectedFotoBase64 = e.target.result;
@@ -151,44 +143,52 @@ function previewFoto(input) {
 
 function hapusFotoPreview() {
   selectedFotoBase64 = null;
-  document.getElementById('input-foto').value = '';
+  document.getElementById('input-foto').value       = '';
   document.getElementById('foto-preview').innerHTML = `<span class="foto-placeholder">📷 Klik untuk pilih foto</span>`;
   document.getElementById('btn-hapus-foto').style.display = 'none';
 }
 
-function tambahPemain() {
-  const nama = document.getElementById('input-nama').value.trim();
+async function tambahPemain() {
+  const nama  = document.getElementById('input-nama').value.trim();
   const errEl = document.getElementById('error-tambah');
 
   if (!nama) {
-    errEl.textContent = 'Nama pemain tidak boleh kosong!';
+    errEl.textContent  = 'Nama pemain tidak boleh kosong!';
     errEl.style.display = 'block';
     return;
   }
 
-  const result = tambahPemainData(nama, selectedAvatar, selectedWarna, selectedFotoBase64);
+  const btnSimpan      = document.querySelector('#modal-tambah .btn-primary');
+  btnSimpan.textContent = 'Menyimpan...';
+  btnSimpan.disabled    = true;
+
+  const result = await tambahPemainData(nama, selectedAvatar, selectedWarna, selectedFotoBase64);
+
+  btnSimpan.textContent = 'Simpan';
+  btnSimpan.disabled    = false;
+
   if (!result.ok) {
-    errEl.textContent = result.msg;
+    errEl.textContent  = result.msg;
     errEl.style.display = 'block';
     return;
   }
 
   closeModalTambah();
-  renderPemainGrid();
+  await renderPemainGrid();
 }
 
 // ============================================================
 // MODAL PROFIL
 // ============================================================
 
-function openModalProfil(id) {
+async function openModalProfil(id) {
   profilPemainId = id;
-  const pemain = getPemain().find(p => p.id === id);
+  const pemainList = await getPemain();
+  const pemain     = pemainList.find(p => p.id === id);
   if (!pemain) return;
 
-  const stats = getStatsPemain(id);
+  const stats = await getStatsPemain(id);
 
-  // Header
   document.getElementById('profil-header').innerHTML = `
     ${profilAvatarHTML(pemain, 72)}
     <div>
@@ -197,10 +197,8 @@ function openModalProfil(id) {
     </div>
   `;
 
-  // Stats
   const winRate = stats.total.main > 0
-    ? Math.round((stats.total.pos1 / stats.total.main) * 100)
-    : 0;
+    ? Math.round((stats.total.pos1 / stats.total.main) * 100) : 0;
 
   document.getElementById('profil-stats').innerHTML = `
     <div class="profil-stat-box">
@@ -221,16 +219,13 @@ function openModalProfil(id) {
     </div>
   `;
 
-  // Chart per liga
-  const chartEl = document.getElementById('profil-chart');
-  chartEl.innerHTML = `
+  document.getElementById('profil-chart').innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem;">
       ${renderLigaStats('🎴 UNO', stats.uno)}
       ${renderLigaStats('♠️ Remi', stats.remi)}
     </div>
   `;
 
-  // Riwayat terakhir
   const riwayatEl = document.getElementById('profil-riwayat-list');
   if (stats.riwayatTerakhir.length === 0) {
     riwayatEl.innerHTML = `<p class="empty-msg">Belum ada riwayat</p>`;
@@ -269,35 +264,23 @@ function closeModalProfil() {
 }
 
 // ============================================================
-// GANTI FOTO dari profil
+// GANTI FOTO
 // ============================================================
 
 function openGantiFoto() {
   document.getElementById('input-ganti-foto').click();
 }
 
-function simpanGantiFoto(input) {
+async function simpanGantiFoto(input) {
   const file = input.files[0];
   if (!file || !profilPemainId) return;
-
-  if (file.size > 2 * 1024 * 1024) {
-    alert('Ukuran foto maksimal 2MB!');
-    input.value = '';
-    return;
-  }
+  if (file.size > 2 * 1024 * 1024) { alert('Ukuran foto maksimal 2MB!'); input.value = ''; return; }
 
   const reader = new FileReader();
-  reader.onload = (e) => {
-    updateFotoPemain(profilPemainId, e.target.result);
-    // refresh profil header langsung
-    const pemain = getPemain().find(p => p.id === profilPemainId);
-    if (pemain) {
-      document.getElementById('profil-header').querySelector('img, .profil-avatar-big').outerHTML =
-        profilAvatarHTML(pemain, 72);
-      // karena replacenya tricky, re-render header saja
-      openModalProfil(profilPemainId);
-    }
-    renderPemainGrid();
+  reader.onload = async (e) => {
+    await updateFotoPemain(profilPemainId, e.target.result);
+    await openModalProfil(profilPemainId);
+    await renderPemainGrid();
     input.value = '';
   };
   reader.readAsDataURL(file);
@@ -307,13 +290,15 @@ function simpanGantiFoto(input) {
 // HAPUS PEMAIN
 // ============================================================
 
-function hapusPemain() {
+async function hapusPemain() {
   if (!profilPemainId) return;
 
-  const pemain = getPemain().find(p => p.id === profilPemainId);
+  const pemainList = await getPemain();
+  const pemain     = pemainList.find(p => p.id === profilPemainId);
   if (!pemain) return;
 
-  const pertandinganTerkait = getPertandingan().filter(g =>
+  const pertandinganList    = await getPertandingan();
+  const pertandinganTerkait = pertandinganList.filter(g =>
     g.hasil.some(h => h.pemainId === profilPemainId)
   ).length;
 
@@ -323,13 +308,13 @@ function hapusPemain() {
 
   if (!confirm(confirmMsg)) return;
 
-  hapusPemainData(profilPemainId);
+  await hapusPemainData(profilPemainId);
   closeModalProfil();
-  renderPemainGrid();
+  await renderPemainGrid();
 }
 
 // Tutup modal saat klik background
 document.addEventListener('click', (e) => {
-  if (e.target.id === 'modal-profil') closeModalProfil();
+  if (e.target.id === 'modal-profil')  closeModalProfil();
   if (e.target.id === 'modal-tambah') closeModalTambah();
 });

@@ -2,32 +2,37 @@
  * RIWAYAT.JS — Halaman riwayat pertandingan
  */
 
-document.addEventListener('DOMContentLoaded', () => {
-  populateFilters();
-  renderRiwayatStats();
-  renderRiwayat();
+document.addEventListener('DOMContentLoaded', async () => {
+  await populateFilters();
+  await renderRiwayatStats();
+  await renderRiwayat();
 });
 
-function populateFilters() {
-  // Filter musim
+async function populateFilters() {
+  const [musimList, pemainList] = await Promise.all([
+    getMusimList(null),
+    getPemain(),
+  ]);
+
   const selMusim = document.getElementById('filter-musim-riwayat');
-  const musimList = getMusimList(null);
   selMusim.innerHTML = `<option value="all">Semua Musim</option>` +
     musimList.map(m => `<option value="${m}">${m}</option>`).join('');
 
-  // Filter pemain
   const selPemain = document.getElementById('filter-pemain-riwayat');
-  const pemainList = getPemain();
   selPemain.innerHTML = `<option value="all">Semua Pemain</option>` +
     pemainList.map(p => `<option value="${p.id}">${p.avatar} ${p.nama}</option>`).join('');
 }
 
-function renderRiwayatStats() {
+async function renderRiwayatStats() {
   const container = document.getElementById('riwayat-stats');
   if (!container) return;
 
-  const all = getPertandingan();
-  const unoCount = all.filter(g => g.liga === 'uno').length;
+  const [all, musimList] = await Promise.all([
+    getPertandingan(),
+    getMusimList(null),
+  ]);
+
+  const unoCount  = all.filter(g => g.liga === 'uno').length;
   const remiCount = all.filter(g => g.liga === 'remi').length;
 
   container.innerHTML = `
@@ -44,25 +49,25 @@ function renderRiwayatStats() {
       <div class="stat-label">♠️ Sesi Remi</div>
     </div>
     <div class="stat-card">
-      <div class="stat-num">${getMusimList(null).length}</div>
+      <div class="stat-num">${musimList.length}</div>
       <div class="stat-label">Musim Berjalan</div>
     </div>
   `;
 }
 
-function renderRiwayat() {
+async function renderRiwayat() {
   const container = document.getElementById('riwayat-container');
   if (!container) return;
 
-  const filterLiga = document.getElementById('filter-liga').value;
-  const filterMusim = document.getElementById('filter-musim-riwayat').value;
+  const filterLiga   = document.getElementById('filter-liga').value;
+  const filterMusim  = document.getElementById('filter-musim-riwayat').value;
   const filterPemain = document.getElementById('filter-pemain-riwayat').value;
   const filterSearch = document.getElementById('filter-search').value.toLowerCase();
 
-  let list = getPertandingan();
+  let list = await getPertandingan();
 
-  if (filterLiga !== 'all') list = list.filter(g => g.liga === filterLiga);
-  if (filterMusim !== 'all') list = list.filter(g => g.musim === filterMusim);
+  if (filterLiga   !== 'all') list = list.filter(g => g.liga === filterLiga);
+  if (filterMusim  !== 'all') list = list.filter(g => g.musim === filterMusim);
   if (filterPemain !== 'all') list = list.filter(g => g.hasil.some(h => h.pemainId === filterPemain));
   if (filterSearch) list = list.filter(g =>
     g.catatan?.toLowerCase().includes(filterSearch) ||
@@ -74,7 +79,6 @@ function renderRiwayat() {
     return;
   }
 
-  // Group by tanggal
   const byDate = {};
   list.forEach(g => {
     if (!byDate[g.tanggal]) byDate[g.tanggal] = [];
@@ -113,17 +117,15 @@ function renderRiwayatCard(g) {
         </div>
         <button class="btn-hapus-riwayat" onclick="hapusRiwayat('${g.id}')" title="Hapus">🗑️</button>
       </div>
-      <div class="riwayat-results">
-        ${resultsHTML}
-      </div>
+      <div class="riwayat-results">${resultsHTML}</div>
       ${g.catatan ? `<div class="riwayat-catatan">💬 ${g.catatan}</div>` : ''}
     </div>
   `;
 }
 
-function hapusRiwayat(id) {
+async function hapusRiwayat(id) {
   if (!confirm('Hapus data pertandingan ini?')) return;
-  hapusPertandinganData(id);
-  renderRiwayatStats();
-  renderRiwayat();
+  await hapusPertandinganData(id);
+  await renderRiwayatStats();
+  await renderRiwayat();
 }

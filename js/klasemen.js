@@ -4,9 +4,8 @@
 
 let currentLiga = 'uno';
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Cek URL param
-  const params = new URLSearchParams(window.location.search);
+document.addEventListener('DOMContentLoaded', async () => {
+  const params    = new URLSearchParams(window.location.search);
   const ligaParam = params.get('liga');
   if (ligaParam === 'remi') {
     currentLiga = 'remi';
@@ -15,31 +14,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  populateMusimFilter();
-  renderKlasemen();
+  await populateMusimFilter();
+  await renderKlasemen();
 });
 
-function switchTab(liga) {
+async function switchTab(liga) {
   currentLiga = liga;
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.liga === liga);
   });
-  populateMusimFilter();
-  renderKlasemen();
+  await populateMusimFilter();
+  await renderKlasemen();
 }
 
-function populateMusimFilter() {
+async function populateMusimFilter() {
   const sel = document.getElementById('filter-musim');
   if (!sel) return;
-  const musimList = getMusimList(currentLiga);
+  const musimList = await getMusimList(currentLiga);
   sel.innerHTML = `<option value="all">Semua Musim</option>` +
     musimList.map(m => `<option value="${m}">${m}</option>`).join('');
 }
 
-function renderKlasemen() {
-  const musim = document.getElementById('filter-musim')?.value || 'all';
-  const klasemen = hitungKlasemen(currentLiga, musim);
-
+async function renderKlasemen() {
+  const musim    = document.getElementById('filter-musim')?.value || 'all';
+  const klasemen = await hitungKlasemen(currentLiga, musim);
   renderPodium(klasemen);
   renderTable(klasemen);
 }
@@ -48,14 +46,14 @@ function avatarHTML(p, size = 56) {
   if (p.foto) {
     return `<img src="${p.foto}" alt="${p.nama}" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;border:3px solid ${p.warna};" />`;
   }
-  return `<div class="podium-avatar" style="width:${size}px;height:${size}px;font-size:${Math.round(size*0.55)}px;background:${p.warna}22; border-color:${p.warna};">${p.avatar}</div>`;
+  return `<div class="podium-avatar" style="width:${size}px;height:${size}px;font-size:${Math.round(size*0.55)}px;background:${p.warna}22;border-color:${p.warna};">${p.avatar}</div>`;
 }
 
 function avatarCellHTML(p) {
   if (p.foto) {
     return `<img src="${p.foto}" alt="${p.nama}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid ${p.warna};flex-shrink:0;" />`;
   }
-  return `<div class="player-avatar" style="background:${p.warna}22; border:2px solid ${p.warna};">${p.avatar}</div>`;
+  return `<div class="player-avatar" style="background:${p.warna}22;border:2px solid ${p.warna};">${p.avatar}</div>`;
 }
 
 function renderPodium(klasemen) {
@@ -63,13 +61,9 @@ function renderPodium(klasemen) {
   if (!section) return;
 
   const aktif = klasemen.filter(k => k.main > 0);
-  if (aktif.length < 3) {
-    section.innerHTML = '';
-    return;
-  }
+  if (aktif.length < 3) { section.innerHTML = ''; return; }
 
   const [first, second, third] = aktif;
-
   section.innerHTML = `
     <div class="podium">
       <div class="podium-item podium-2">
@@ -106,9 +100,8 @@ function renderTable(klasemen) {
   const rankClass = ['rank-1st', 'rank-2nd', 'rank-3rd'];
 
   tbody.innerHTML = klasemen.map((k, i) => {
-    const posLabel = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1;
-    const winRate = k.main > 0 ? Math.round((k.pos1 / k.main) * 100) : 0;
-    // Total Lose = jumlah sesi di posisi ketiga (paling banyak kalah)
+    const posLabel  = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1;
+    const winRate   = k.main > 0 ? Math.round((k.pos1 / k.main) * 100) : 0;
     const totalLose = k.pos3;
 
     return `
@@ -124,10 +117,10 @@ function renderTable(klasemen) {
           </div>
         </td>
         <td>${k.main}</td>
-        <td style="color:var(--uno-yellow);">${k.pos1}</td>
+        <td style="color:var(--gold);">${k.pos1}</td>
         <td style="color:#aaa;">${k.pos2}</td>
         <td style="color:#cd7f32;">${k.pos3}</td>
-        <td style="color:var(--uno-red);font-weight:700;">${totalLose}</td>
+        <td style="color:var(--red);font-weight:700;">${totalLose}</td>
         <td class="poin-total">${k.totalPoin}</td>
       </tr>
     `;

@@ -2,16 +2,15 @@
  * HOME.JS — Halaman beranda
  */
 
-document.addEventListener('DOMContentLoaded', () => {
-  renderQuickStats();
-  renderMiniKlasemen();
-  renderRecentGames();
+document.addEventListener('DOMContentLoaded', async () => {
+  await renderQuickStats();
+  await renderMiniKlasemen();
+  await renderRecentGames();
 });
 
-function renderQuickStats() {
-  const pemain = getPemain();
-  const pertandingan = getPertandingan();
-  const unoGames = pertandingan.filter(g => g.liga === 'uno').length;
+async function renderQuickStats() {
+  const [pemain, pertandingan] = await Promise.all([getPemain(), getPertandingan()]);
+  const unoGames  = pertandingan.filter(g => g.liga === 'uno').length;
   const remiGames = pertandingan.filter(g => g.liga === 'remi').length;
 
   const container = document.querySelector('.stats-container');
@@ -36,23 +35,22 @@ function renderQuickStats() {
     </div>
   `;
 
-  // Trigger animated counter setelah render
   if (window.setupCounters) setTimeout(window.setupCounters, 50);
-
-  // Trigger scroll reveal untuk elemen baru
   if (window.triggerReveal) setTimeout(window.triggerReveal, 100);
 }
 
-function renderMiniKlasemen() {
-  renderMiniTable('uno', 'mini-klasemen-uno');
-  renderMiniTable('remi', 'mini-klasemen-remi');
+async function renderMiniKlasemen() {
+  await Promise.all([
+    renderMiniTable('uno',  'mini-klasemen-uno'),
+    renderMiniTable('remi', 'mini-klasemen-remi'),
+  ]);
 }
 
-function renderMiniTable(liga, tableId) {
+async function renderMiniTable(liga, tableId) {
   const tbody = document.querySelector(`#${tableId} tbody`);
   if (!tbody) return;
 
-  const klasemen = hitungKlasemen(liga, 'all');
+  const klasemen = await hitungKlasemen(liga, 'all');
 
   if (klasemen.length === 0 || klasemen.every(k => k.main === 0)) {
     tbody.innerHTML = `<tr><td colspan="4" class="empty-msg">Belum ada data</td></tr>`;
@@ -63,37 +61,38 @@ function renderMiniTable(liga, tableId) {
 
   tbody.innerHTML = klasemen.map((k, i) => {
     const avatarEl = k.foto
-      ? `<img src="${k.foto}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid ${k.warna};" />`
-      : `<div class="player-avatar" style="background:${k.warna}22; border:2px solid ${k.warna};">${k.avatar}</div>`;
+      ? `<img src="${k.foto}" alt="${k.nama}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid ${k.warna};" />`
+      : `<div class="player-avatar" style="background:${k.warna}22;border:2px solid ${k.warna};">${k.avatar}</div>`;
 
     return `
-    <tr class="${rankClass[i] || ''}">
-      <td class="rank-pos">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}</td>
-      <td>
-        <div class="player-cell">
-          ${avatarEl}
-          <span class="player-name">${k.nama}</span>
-        </div>
-      </td>
-      <td>${k.main}</td>
-      <td class="poin-total">${k.totalPoin}</td>
-    </tr>
-  `}).join('');
+      <tr class="${rankClass[i] || ''}">
+        <td class="rank-pos">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}</td>
+        <td>
+          <div class="player-cell">
+            ${avatarEl}
+            <span class="player-name">${k.nama}</span>
+          </div>
+        </td>
+        <td>${k.main}</td>
+        <td class="poin-total">${k.totalPoin}</td>
+      </tr>
+    `;
+  }).join('');
 }
 
-function renderRecentGames() {
+async function renderRecentGames() {
   const container = document.getElementById('recent-list');
   if (!container) return;
 
-  const games = getPertandingan().slice(0, 5);
+  const games = (await getPertandingan()).slice(0, 5);
 
   if (games.length === 0) {
-    container.innerHTML = `<p class="empty-msg">Belum ada pertandingan. <a href="pages/pertandingan.html" style="color:var(--uno-red)">Input sekarang →</a></p>`;
+    container.innerHTML = `<p class="empty-msg">Belum ada pertandingan. <a href="pages/pertandingan.html" style="color:var(--red)">Input sekarang →</a></p>`;
     return;
   }
 
   container.innerHTML = games.map(g => {
-    const juara = g.hasil.find(h => h.posisi === 1);
+    const juara     = g.hasil.find(h => h.posisi === 1);
     const pemainList = g.hasil.map(h => `${rankEmoji(h.posisi)} ${h.pemainNama}`).join(' · ');
     return `
       <div class="recent-card">
