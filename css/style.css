@@ -1692,22 +1692,159 @@ form::before {
    RESPONSIVE
    ======================================== */
 @media (max-width: 768px) {
-  .navbar { padding: 0 1rem; }
-  .nav-links a { padding: 0.35rem 0.55rem; font-size: 0.75rem; letter-spacing: 0; }
-  .form-row { grid-template-columns: 1fr; }
-  .result-row { grid-template-columns: 60px 1fr; }
-  .poin-badge { display: none; }
-  .profil-stats { grid-template-columns: repeat(2, 1fr); }
-  .riwayat-results { grid-template-columns: 1fr; }
-  .podium-block { width: 65px; }
-  .filter-bar { gap: 0.5rem; }
-  .hero { padding: 3rem 1rem 2.5rem; }
+
+  /* --- NAVBAR --- */
+  .navbar {
+    padding: 0 0.75rem;
+    height: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    padding-top: 0.6rem;
+    padding-bottom: 0;
+  }
+  .nav-brand {
+    font-size: 1.1rem;
+    padding-bottom: 0.4rem;
+  }
+  .nav-links {
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 0;
+    padding-bottom: 0.5rem;
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-links a {
+    padding: 0.4rem 0.65rem;
+    font-size: 0.72rem;
+    letter-spacing: 0;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* --- HERO --- */
+  .hero { padding: 2.5rem 1rem 2rem; }
+  .hero p { font-size: 0.92rem; }
+  .hero-buttons { flex-direction: column; align-items: center; gap: 0.65rem; }
+  .hero-buttons .btn { width: 100%; max-width: 280px; }
+
+  /* --- QUICK STATS --- */
+  .quick-stats { padding: 1.25rem 0.75rem 0.25rem; }
+  .stats-container { grid-template-columns: repeat(2, 1fr); gap: 0.65rem; }
+  .stat-card { padding: 1rem 0.75rem; }
+  .stat-card .stat-num { font-size: 2rem; }
+
+  /* --- LIGA CARDS --- */
+  .liga-section { padding: 2rem 0.75rem; }
+  .liga-cards { grid-template-columns: 1fr; gap: 1rem; }
+
+  /* --- MINI KLASEMEN --- */
+  .mini-klasemen-section { padding: 1.5rem 0.75rem 2rem; }
+  .mini-klasemen-wrapper { grid-template-columns: 1fr; gap: 1rem; }
+
+  /* --- RECENT --- */
+  .recent-section { padding: 1.5rem 0.75rem 2rem; }
+  .recent-card { padding: 0.75rem 1rem; gap: 0.65rem; }
+
+  /* --- PAGE HEADER --- */
+  .page-header { padding: 2rem 1rem 1.25rem; }
+  .page-header h1 { font-size: 1.75rem; }
+
+  /* --- TABS --- */
+  .tab-container { padding: 0.75rem 0.75rem; }
+  .tab-btn { font-size: 0.78rem; padding: 0.55rem 0.4rem; }
+
+  /* --- FILTER BAR --- */
+  .filter-bar {
+    padding: 0.5rem 0.75rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .filter-group {
+    flex: 1 1 calc(50% - 0.25rem);
+    min-width: 0;
+  }
+  .filter-group label { display: block; margin-bottom: 0.2rem; }
+  .filter-group select,
+  .filter-group input {
+    width: 100%;
+    font-size: 0.82rem;
+    padding: 0.35rem 0.6rem;
+  }
+
+  /* --- PODIUM --- */
+  .podium-section { padding: 0 0.75rem; }
+  .podium { gap: 0.6rem; }
+  .podium-block { width: 64px; }
+  .podium-name { font-size: 0.78rem; }
+  .podium-poin { font-size: 0.7rem; }
+  .podium-avatar { width: 46px; height: 46px; font-size: 1.5rem; }
+  .podium-1 .podium-avatar { width: 54px; height: 54px; font-size: 1.7rem; }
+  .podium-1 .podium-block { height: 70px; }
+  .podium-2 .podium-block { height: 54px; }
+  .podium-3 .podium-block { height: 40px; }
+
+  /* --- KLASEMEN TABLE --- */
+  .klasemen-container { padding: 0 0.75rem; }
+  .full-table th, .full-table td { padding: 0.75rem 0.5rem; font-size: 0.8rem; }
   /* Sembunyikan kolom detail di mobile */
   .full-table th:nth-child(4),
   .full-table td:nth-child(4),
   .full-table th:nth-child(5),
-  .full-table td:nth-child(5) { display: none; }
-  /* Kolom Total Lose juga tersembunyi di mobile */
+  .full-table td:nth-child(5),
   .full-table th:nth-child(7),
   .full-table td:nth-child(7) { display: none; }
+
+  /* --- INFO BOX --- */
+  .info-box { padding: 0 0.75rem 2rem; }
+
+  /* --- FORM --- */
+  .form-container { padding: 0 0.75rem 2rem; }
+  form { padding: 1.25rem 1rem; }
+  .form-row { grid-template-columns: 1fr; gap: 0.75rem; }
+  .result-row {
+    grid-template-columns: 56px 1fr;
+    gap: 0.5rem;
+    padding: 0.75rem 0.75rem;
+  }
+  .poin-badge { display: none; }
+  .form-actions { flex-direction: column-reverse; gap: 0.65rem; }
+  .form-actions .btn { width: 100%; }
+
+  /* --- RIWAYAT --- */
+  .riwayat-stats { padding: 0.5rem 0.75rem 0.75rem; grid-template-columns: repeat(2, 1fr); }
+  .riwayat-container { padding: 0 0.75rem 2rem; }
+  .riwayat-card { padding: 1rem 1rem; }
+  .riwayat-results { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+  .result-item { padding: 0.5rem; }
+  .result-player { font-size: 0.78rem; }
+  .result-score { font-size: 0.7rem; }
+  .result-pts { font-size: 0.72rem; }
+
+  /* --- PEMAIN --- */
+  .add-pemain-bar { padding: 0.75rem 0.75rem; }
+  .pemain-grid { padding: 0 0.75rem 2rem; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+  .pemain-card { padding: 1rem; }
+  .pemain-avatar-big { width: 56px; height: 56px; font-size: 1.75rem; }
+
+  /* --- PROFIL MODAL --- */
+  .profil-stats { grid-template-columns: repeat(2, 1fr); }
+  .profil-header { flex-direction: column; text-align: center; }
+  .modal-content { padding: 1.5rem 1.25rem; }
+
+  /* --- MODAL ACTIONS --- */
+  .modal-actions { flex-direction: column; gap: 0.6rem; }
+  .modal-actions .btn,
+  .modal-actions a.btn { width: 100%; }
+}
+
+@media (max-width: 380px) {
+  .stats-container { grid-template-columns: 1fr; }
+  .pemain-grid { grid-template-columns: 1fr; }
+  .riwayat-results { grid-template-columns: 1fr; }
+  .podium { gap: 0.4rem; }
+  .podium-block { width: 54px; }
 }
