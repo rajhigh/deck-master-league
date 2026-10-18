@@ -79,27 +79,29 @@
                  : 1;
       const a = p.alpha * fade;
 
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, Math.min(1, a));
+
       if (p.suit) {
-        ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate(p.rot);
         ctx.font = `${p.size}px serif`;
-        ctx.globalAlpha = a;
         ctx.fillStyle = p.color + '1)';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(p.suit, 0, 0);
-        ctx.restore();
       } else {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = p.color + a.toFixed(2) + ')';
+        ctx.fillStyle = p.color + '1)';
         ctx.fill();
       }
 
+      ctx.restore();
+
       if (p.life >= p.maxLife || p.y < -50 || p.x < -50 || p.x > W + 50) {
-        particles[i]   = createParticle();
-        particles[i].y = H + 10;
+        particles[i]      = createParticle();
+        particles[i].y    = H + 10;
         particles[i].life = 0;
       }
     });

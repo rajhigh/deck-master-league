@@ -66,27 +66,29 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  opacity: 0;
+  pointer-events: none;
 }
 .hero-line2::before {
-  animation: glitchTop 6s infinite;
-  clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+  animation: glitchTop 7s infinite;
+  clip-path: polygon(0 0, 100% 0, 100% 40%, 0 40%);
 }
 .hero-line2::after {
-  animation: glitchBot 6s infinite;
-  clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+  animation: glitchBot 7s infinite;
+  clip-path: polygon(0 60%, 100% 60%, 100% 100%, 0 100%);
 }
 
 @keyframes glitchTop {
-  0%,88%,100%  { transform: translateX(0); opacity: 0; }
-  89%           { transform: translateX(3px); opacity: 0.5; }
-  90%           { transform: translateX(-2px); opacity: 0.3; }
-  91%           { transform: translateX(0); opacity: 0; }
+  0%,87%,92%,100% { transform: translateX(0); opacity: 0; }
+  88%  { transform: translateX(4px); opacity: 0.45; }
+  89%  { transform: translateX(-2px); opacity: 0.25; }
+  90%  { transform: translateX(0); opacity: 0; }
 }
 @keyframes glitchBot {
-  0%,90%,100%  { transform: translateX(0); opacity: 0; }
-  91%           { transform: translateX(-3px); opacity: 0.5; }
-  92%           { transform: translateX(2px); opacity: 0.3; }
-  93%           { transform: translateX(0); opacity: 0; }
+  0%,89%,94%,100% { transform: translateX(0); opacity: 0; }
+  90%  { transform: translateX(-4px); opacity: 0.45; }
+  91%  { transform: translateX(2px); opacity: 0.25; }
+  92%  { transform: translateX(0); opacity: 0; }
 }
 
 /* ----------------------------------------
