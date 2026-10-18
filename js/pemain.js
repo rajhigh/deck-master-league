@@ -68,7 +68,7 @@ function renderPemainGrid() {
         <div class="pemain-card-sub">Bergabung ${formatTanggal(p.bergabung)}</div>
         <div class="pemain-card-stats">
           <div class="pemain-stat-item">
-            <div class="pemain-stat-val" style="color:var(--uno-yellow);">${stats.total.totalPoin}</div>
+            <div class="pemain-stat-val" style="color:var(--gold);">${stats.total.totalPoin}</div>
             <div class="pemain-stat-lbl">Total Poin</div>
           </div>
           <div class="pemain-stat-item">
@@ -76,7 +76,7 @@ function renderPemainGrid() {
             <div class="pemain-stat-lbl">Sesi Main</div>
           </div>
           <div class="pemain-stat-item">
-            <div class="pemain-stat-val" style="color:var(--uno-green);">${stats.total.pos1}</div>
+            <div class="pemain-stat-val" style="color:var(--green);">${stats.total.pos1}</div>
             <div class="pemain-stat-lbl">🥇 Juara</div>
           </div>
           <div class="pemain-stat-item">
@@ -204,7 +204,7 @@ function openModalProfil(id) {
 
   document.getElementById('profil-stats').innerHTML = `
     <div class="profil-stat-box">
-      <div class="pval" style="color:var(--uno-yellow);">${stats.total.totalPoin}</div>
+      <div class="pval" style="color:var(--gold);">${stats.total.totalPoin}</div>
       <div class="plbl">Total Poin</div>
     </div>
     <div class="profil-stat-box">
@@ -212,7 +212,7 @@ function openModalProfil(id) {
       <div class="plbl">Total Main</div>
     </div>
     <div class="profil-stat-box">
-      <div class="pval" style="color:var(--uno-green);">${stats.total.pos1}</div>
+      <div class="pval" style="color:var(--green);">${stats.total.pos1}</div>
       <div class="plbl">🥇 Juara</div>
     </div>
     <div class="profil-stat-box">
@@ -242,7 +242,7 @@ function openModalProfil(id) {
           <div>${r.musim} · ${r.posisi === 1 ? '🥇 Juara' : r.posisi === 2 ? '🥈 Kedua' : '🥉 Ketiga'}</div>
           <div style="color:var(--text-muted);font-size:0.8rem;">${formatTanggal(r.tanggal)}</div>
         </div>
-        <div style="font-size:0.9rem;font-weight:700;color:var(--uno-yellow);">+${r.poin}</div>
+        <div style="font-size:0.9rem;font-weight:700;color:var(--gold);">+${r.poin}</div>
       </div>
     `).join('');
   }
@@ -256,7 +256,7 @@ function renderLigaStats(label, s) {
       <div style="font-size:0.85rem;font-weight:700;margin-bottom:0.5rem;">${label}</div>
       <div style="font-size:0.8rem;color:var(--text-muted);display:flex;flex-direction:column;gap:0.25rem;">
         <div>Main: <strong style="color:var(--text);">${s.main}</strong></div>
-        <div>Poin: <strong style="color:var(--uno-yellow);">${s.totalPoin}</strong></div>
+        <div>Poin: <strong style="color:var(--gold);">${s.totalPoin}</strong></div>
         <div>🥇 ${s.pos1} · 🥈 ${s.pos2} · 🥉 ${s.pos3}</div>
       </div>
     </div>
